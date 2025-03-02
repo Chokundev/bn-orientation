@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>"กระดานความทรงจำ" ปัจฉิมนิเทศ บวรนิเวศรุ่น 134 และ 131</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="icon" href="/img/logo.png" type="image/png">
+
+    <meta name="description" content="เว็บไซต์กระดานความทรงจำ สำหรับกิจกรรมปัจฉิมนิเทศ ม.3 และ ม.6 ปีการศึกษา 2567" />
+    <meta property="og:title" content="กระดานความทรงจำ ปัจฉิมนิเทศ บวรนิเวศรุ่น 134 และ 131">
+    <meta property="og:image" content="https://orientation.bn-sc.cloud/meta.png">
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Sriracha&display=swap');
+        /* พื้นหลังรูปโรงเรียน */
+        body {
+            font-family: "Sriracha", cursive;
+            background-image: url('/img/bg.png');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            background-repeat: no-repeat;
+            min-height: 100vh;
+            color: #333;
+        }
+
+        /* กำหนดสีธีม เหลือง-ดำ */
+        .bg-primary {
+            background-color: #FFD700; /* สีเหลือง */
+        }
+
+        .text-primary {
+            color: #FFD700; /* สีเหลือง */
+        }
+
+        .text-secondary {
+            color: #000000; /* สีดำ */
+        }
+
+        /* กล่องข้อความลอยไปลอยมา */
+        .floating-box {
+            animation: floating 5s ease-in-out infinite;
+        }
+
+        /* เอฟเฟกต์การลอย */
+        @keyframes floating {
+            0% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+            100% { transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="flex flex-col items-center">
+    
+    <!-- Header -->
+    <header class="w-full bg-primary text-black text-center py-4 text-xl font-bold">
+       "กระดานความทรงจำ" <br> ปัจฉิมนิเทศ บวรนิเวศ 134-131
+    </header>
+
+    <!-- หน้าแสดงข้อความ -->
+    <main id="message-list" class="w-full max-w-md mt-4 p-4 space-y-4">
+        <!-- ข้อความจะแสดงที่นี่ -->
+    </main>
+
+    <!-- Bottom Navbar -->
+    <nav class="fixed bottom-0 w-full bg-white flex justify-around items-center py-3 border-t">
+        <button onclick="openForm()" class="text-secondary">
+            ✏️ <br> เขียนข้อความ
+        </button>
+        <button onclick="fetchMessages()" class="bg-primary text-white w-14 h-14 rounded-full flex items-center justify-center shadow-lg">
+            🏠
+        </button>
+        <button onclick="showAbout()" class="text-secondary">
+            ℹ️ <br> เกี่ยวกับ
+        </button>
+    </nav>
+
+    <script>
+        const API_URL = "https://script.google.com/macros/s/AKfycbwGiO8oAHLGEW0O1Jo8naugMR_FtUH70Q0ENs0EzBep__6e1Z29CZn8rONSn1cOlbDDaw/exec";
+
+        // 📌 ดึงข้อความจาก Google Sheet
+        async function fetchMessages() {
+            const response = await fetch(API_URL + "?action=get");
+            const data = await response.json();
+            displayMessages(data);
+        }
+
+        // 📌 แสดงข้อความบนหน้าเว็บ
+        function displayMessages(messages) {
+            const messageList = document.getElementById("message-list");
+            messageList.innerHTML = "";
+            messages.forEach(msg => {
+                messageList.innerHTML += `
+                    <div class="floating-box bg-white p-4 rounded-lg shadow">
+                        <h3 class="font-bold text-primary">${msg.name}</h3>
+                        <p class="text-secondary">${msg.message}</p>
+                    </div>
+                `;
+            });
+        }
+
+        // 📌 เปิดฟอร์มเขียนข้อความ
+        function openForm() {
+            window.location.replace("https://script.google.com/macros/s/AKfycby5_B3tKvn2hRZxnzQ7hCXZQhuAn-zB7HvsalLyly8oUW3YmbvRDA0SDFdk5DIM2aKhog/exec")
+        }
+
+        // 📌 บันทึกข้อความลง Google Sheet
+        async function saveMessage(name, message) {
+            const response = await fetch(API_URL, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ action: "add", name, message })
+            });
+
+            if (response.ok) {
+                Swal.fire("สำเร็จ!", "ข้อความถูกบันทึกแล้ว", "success");
+                fetchMessages(); // รีโหลดข้อความใหม่
+            } else {
+                Swal.fire("ผิดพลาด!", "ไม่สามารถบันทึกข้อความได้", "error");
+            }
+        }
+
+        // 📌 แสดงหน้าเกี่ยวกับ
+        function showAbout() {
+            window.location.replace("/about.html")
+        }
+
+        // โหลดข้อความเมื่อเปิดเว็บ
+        fetchMessages();
+    </script>
+
+</body>
+</html>
